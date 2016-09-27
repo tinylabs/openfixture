@@ -21,11 +21,11 @@ Currently as it stands there is a manual process to provide the necessary inputs
   2. Gather all the relative xy coordinates by moving your crosshair cursor to the center of each pad. Write these down.
   3. Write down the bounding box x and y dimensions for pcb.
   4. Click on File->Plot
-     Select DXF as plot format
-     Choose output directory
-     Under layers select Edge.Cuts only
-     For options only select 'Use auxillary axis as origin'
-     Click 'Plot'
+     * Select DXF as plot format
+     * Choose output directory
+     * Under layers select Edge.Cuts only
+     * For options only select 'Use auxillary axis as origin'
+     * Click 'Plot'
   5. Load openscad and open openfixture.scad
   6. Enter the test point coordinates from step 2 into 'test_points' array.
   7. Look through the test point array and find minimum y value. Set tp_min_y to this value.
