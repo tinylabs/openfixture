@@ -4,13 +4,13 @@
 The motivation of OpenFixture was to make a parametric fixturing system that could take mostly (maybe fully) generated inputs from kicad and produce a test fixture with minimal effort.
 
 Currently the inputs needed are:
-  *Exported DXF of PCB outline
-  *xy coordinates of all test point centers
-  *xy dimensions of pcb (openscad cannot get this from DXF for some reason)
+  * Exported DXF of PCB outline
+  * xy coordinates of all test point centers
+  * xy dimensions of pcb (openscad cannot get this from DXF for some reason)
 
 The resulting output is:
-  *A 3D model of the test fixture for visualization
-  *A 2D DXF that can be directly lasercut for assembly
+  * A 3D model of the test fixture for visualization
+  * A 2D DXF that can be directly lasercut for assembly
 
 ## Future
 I think it should be possible to integrate directly into kicad. Ideally having a File->Export Fixture. This should be possible using the python scripting to iterate through all pads looking for some attribute that identifies it as a test pad. After gathering xy coordinates and generating DXF from Edge.Cuts layer, openscad can be called from the command line to generate the laser cuttable DXF file and even a 3D rendering to display.
@@ -38,27 +38,27 @@ Currently as it stands there is a manual process to provide the necessary inputs
   
 
 ## Hardware
-  *All that is needed is M3 (14mm) screws or larger and lasercut parts
-  *I use nylon bushings in the main pivot with m3 screws for a smoother joint but this is optional 
+  * All that is needed is M3 (14mm) screws or larger and lasercut parts
+  * I use nylon bushings in the main pivot with m3 screws for a smoother joint but this is optional 
 
 ## Assembly
 TODO - Will be writing detailed assembly instructions on http://tinylabs.io/openfixture
 
 ## Dependencies
-  *Newer version of openscad >= 2015.03-1
-  *kicad
+  * Newer version of openscad >= 2015.03-1
+  * kicad
 
 ## Documentation
 TODO
 
 ## Known Issues
-  *When loading the fonts file a new small window opens in Ubuntu. Seems innocuous but still annoying
+  * When loading the fonts file a new small window opens in Ubuntu. Seems innocuous but still annoying
 
 ## License
 Creative Commons (CC BY-SA 4.0)
 
 ## Contributors
-  *Elliot Buller - Tiny Labs Inc
+  * Elliot Buller - Tiny Labs Inc
 
 Please email with any pull requests on new features
 elliot@tinylabs.io
