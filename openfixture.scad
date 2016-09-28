@@ -105,9 +105,9 @@ screw_d = 2.9;
 screw_r = screw_d / 2;
 
 // Uncomment to use normal M3 screw for pivot
-//pivot_d = screw_d;
+pivot_d = screw_d;
 // Uncomment to use bushing
-pivot_d = 5.12;
+//pivot_d = 5.12;
 pivot_r = pivot_d / 2;
 
 // Metric M3 hex nut dimensions
@@ -646,7 +646,7 @@ module lasercut ()
     
     // Add latch
     yoffset = 2 * pivot_d + screw_d + laser_pad;
-    xoffset = base_z + tab_width + laser_pad;
+    xoffset = base_z + tab_width / 2 + laser_pad;
     translate ([xoffset, yoffset, 0])
     latch ();
     

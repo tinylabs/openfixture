@@ -60,5 +60,5 @@ Creative Commons (CC BY-SA 4.0)
 ## Contributors
   * Elliot Buller - Tiny Labs Inc
 
-Please email with any pull requests on new features
+Please email with any pull requests or new feature requests
 elliot@tinylabs.io
