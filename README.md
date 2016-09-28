@@ -1,5 +1,7 @@
 # OpenFixture
 
+![Alt text](/../images/screencap.png?raw=true "")
+
 ## Goal
 The motivation of OpenFixture was to make a parametric fixturing system that could take mostly (maybe fully) generated inputs from kicad and produce a test fixture with minimal effort.
 
