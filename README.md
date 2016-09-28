@@ -1,6 +1,7 @@
 # OpenFixture
 
 ![Alt text](/../images/screencap.png?raw=true "")
+![Alt text](/../images/laser_dxf.png?raw=true "")
 
 ## Goal
 The motivation of OpenFixture was to make a parametric fixturing system that could take mostly (maybe fully) generated inputs from kicad and produce a test fixture with minimal effort.
@@ -19,7 +20,7 @@ I think it should be possible to integrate directly into kicad. Ideally having a
 
 ## Preparation
 Currently as it stands there is a manual process to provide the necessary inputs to generate the fixture.
-  1. In kicad pcbnew place the 'auxillary origin in the top left corner of your pcb.
+  1. In kicad pcbnew place the 'auxillary origin' in the top left corner of your pcb.
   2. Gather all the relative xy coordinates by moving your crosshair cursor to the center of each pad. Write these down.
   3. Write down the bounding box x and y dimensions for pcb.
   4. Click on File->Plot
@@ -32,7 +33,7 @@ Currently as it stands there is a manual process to provide the necessary inputs
   6. Enter the test point coordinates from step 2 into 'test_points' array.
   7. Look through the test point array and find minimum y value. Set tp_min_y to this value.
   8. Enter path to DXF file form step 4 into pcb_outline.
-  9. Enter x,y dimensions from 3 into pcb_x, pcb_y and active_area_x, active_area_y
+  9. Enter x,y dimensions from step 3 into pcb_x, pcb_y and active_area_x, active_area_y
   10. Enter pcb thickness into pcb_th
   11. Enter material thickness as 'acr_th'
   12. Uncomment 3d_model () or lasercut () and hit F6 to generate!
@@ -40,7 +41,7 @@ Currently as it stands there is a manual process to provide the necessary inputs
   
 
 ## Hardware
-  * All that is needed is M3 (14mm) screws or larger and lasercut parts
+  * All that is needed is M3 (14mm+) screws, M3 hex nuts, and lasercut parts
   * I use nylon bushings in the main pivot with m3 screws for a smoother joint but this is optional 
 
 ## Assembly
