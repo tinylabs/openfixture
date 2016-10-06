@@ -41,6 +41,8 @@ tp_min_y = 18.8;
 
 // DXF outline of pcb
 pcb_outline = "/home/elliot/projects/openfixture/keysy_outline.dxf";
+osh_logo = "/home/elliot/projects/openfixture/osh_logo.dxf";
+
 
 // Should be close to actual pcb dimensions... Used for support structure only so not critical
 pcb_x = 27.14;
@@ -70,8 +72,8 @@ tp_correction_offset_y = 0.0;
 //projection (cut = false) alignment_check ();
 
 // Uncomment for laser cuttable dxf
-//projection (cut = false) lasercut ();
-3d_model ();  // Uncomment for full 3d asssembled model
+projection (cut = false) lasercut ();
+//3d_model ();  // Uncomment for full 3d asssembled model
 //3d_head ();  // Uncomment for assembled head 
 //3d_base ();  // Uncomment for assembled base 
 
@@ -80,14 +82,14 @@ tp_correction_offset_y = 0.0;
 //
 
 // Smothness function for circles
-$fn = 20;
+$fn = 15;
 
 // All measurements in mm
 // Material parameters
 // 0.10"
-acr_th = 2.5;
+//acr_th = 2.5;
 // 0.125" (1/8 ")
-//acr_th = 3.175;
+acr_th = 3.175;
 
 // Kerf adjustment
 kerf = 0.125;
@@ -342,6 +344,12 @@ module head_base ()
         cube ([acr_th, tab_width / 4, acr_th]);
     }
 }
+module osh_logo () {
+    linear_extrude (height = acr_th)
+    scale ([0.2, 0.2, 1])
+    translate ([-72, -66, 0])
+    import (osh_logo);
+}
 
 module head_top ()
 {
@@ -362,11 +370,10 @@ module head_top ()
         cylinder (r = screw_r + pad, h = acr_th);
         translate ([head_x - hole_offset, hole_offset, 0])
         cylinder (r = screw_r + pad, h = acr_th);
-        
-        // Add project name
-        translate ([head_x / 2, head_y - 14, 0])
-        linear_extrude (height = acr_th)
-        text ("OpenFixture", font = "Videopac", halign = "center", size = 5);
+
+        // Add osh logo
+        translate ([head_x / 2, head_y - 25, 0])
+        osh_logo ();
     }
 }
 
@@ -384,10 +391,10 @@ module head_base_common ()
         tng_p (head_y, 3);
         translate ([head_x / 2, head_y - 2 * acr_th, 0])
         rotate ([0, 0, 90])
-        tng_p (head_x, 3);
+        tng_p (head_x + 2 * acr_th, 3);
         translate ([head_x / 2, acr_th, 0])        
         rotate ([0, 0, 90])
-        tng_p (head_x, 3);
+        tng_p (head_x + 2 * acr_th, 3);
         
         // Calc (x,y) origin = (0, 0)
         origin_x = active_x_offset;
@@ -405,7 +412,7 @@ module head_base_common ()
 
 module latch ()
 {
-    pad = tab_width / 8;
+    pad = tab_width / 12;
     
     y = base_z * (2 / 3) + base_pivot_offset - pivot_d;
     difference () {
@@ -553,9 +560,9 @@ module carrier (dxf_filename, pcb_x, pcb_y, border)
         tnut_hole ();
         
         // Add label to distinguish TOP
-        translate ([x / 2, y - 8, 0])
+        translate ([x / 2, y - 10, 0])
         linear_extrude (height = acr_th)
-        text ("top", font = "Videopac", halign = "center", size = 5);
+        text ("top", font = "Videopac", halign = "center", size = 8);
     }
 }
 
@@ -645,7 +652,7 @@ module lasercut ()
     base_side ();
     
     // Add latch
-    yoffset = 2 * pivot_d + screw_d + laser_pad;
+    yoffset = 2 * pivot_d + screw_d + 2 * laser_pad;
     xoffset = base_z + tab_width / 2 + laser_pad;
     translate ([xoffset, yoffset, 0])
     latch ();
@@ -670,10 +677,11 @@ module lasercut ()
     base_support (base_z);
 
     // Add heads
-    xoffset2 = xoffset1 + base_x + tab_length + laser_pad;
+    xoffset2 = xoffset1 + 2 * base_x + tab_length;
     translate ([xoffset2, 0, 0])
+    mirror ([1, 0, 0])
     head_base ();
-    xoffset3 = xoffset2 + base_x + tab_length + laser_pad;
+    xoffset3 = xoffset2 + tab_length + laser_pad;
     translate ([xoffset3, 0, 0])
     head_top ();
     
