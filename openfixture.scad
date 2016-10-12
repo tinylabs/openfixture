@@ -476,10 +476,10 @@ module base_side ()
         tnut_hole ();
         
         // Back support
-        translate ([x/2 + mat_th, y - mat_th - pivot_r, 0])
+        translate ([x/2 + mat_th, y - pivot_d - (mat_th / 2), 0])
         rotate ([0, 0, 90])
         tng_n (x, 3);
-        translate ([x/2 + mat_th, y - mat_th - pivot_r + (mat_th / 2), 0])        
+        translate ([x/2 + mat_th, y - pivot_d, 0])        
         tnut_hole ();
         
         // Remove locking pivot hole
@@ -509,6 +509,28 @@ module base_support (length)
         translate ([x, y / 2, 0])
         rotate ([0, 0, 180])
         tnut_female (1);
+    }
+}
+
+module base_back_support ()
+{
+    difference () {
+        union () {
+            base_support (base_z);
+        
+            // Add additional support to receive pivot screw and nut
+            translate ([3 * mat_th, base_z, 0])
+            cube ([base_x - 6 * mat_th, base_pivot_offset + mat_th, mat_th]);
+        }
+        
+        // Remove tnut supports
+        translate ([0, base_z + base_pivot_offset - mat_th, 0])
+        tnut_female (3);
+
+        // Remove tnut supports
+        translate ([base_x, base_z + base_pivot_offset - mat_th, 0])
+        rotate ([0, 0, 180])
+        tnut_female (3);
     }
 }
 
@@ -602,9 +624,9 @@ module 3d_base () {
     base_support (head_y / 3);
     translate ([-mat_th, head_y - (head_y / 3) - mat_th, 2 * mat_th])
     base_support (head_y / 3);
-    translate ([-mat_th, base_y - pivot_r, mat_th])
+    translate ([-mat_th, base_y - pivot_d + mat_th/2, mat_th])
     rotate ([90, 0, 0])
-    base_support (base_z);
+    base_back_support ();
     
     // Add spacers
     translate ([0, base_y - pivot_d, base_z + base_pivot_offset])
