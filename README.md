@@ -46,7 +46,7 @@ Currently as it stands there is a manual process to provide the necessary inputs
   * I use nylon bushings in the main pivot with m3 screws for a smoother joint but this is optional 
 
 ## Assembly
-TODO - Will be writing detailed assembly instructions on http://tinylabs.io/openfixture
+More info including detailed assembly instructions at http://tinylabs.io/openfixture
 
 ## Dependencies
   * Newer version of openscad >= 2015.03-1
