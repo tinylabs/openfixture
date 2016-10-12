@@ -698,7 +698,7 @@ module lasercut ()
     base_support (head_y / 3);
     yoffset4 = yoffset3 + head_y / 3 + laser_pad;
     translate ([xoffset1, yoffset4, 0])
-    base_support (base_z);
+    base_back_support ();
 
     // Add heads
     xoffset2 = xoffset1 + 2 * base_x + tab_length;
