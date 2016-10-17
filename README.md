@@ -45,18 +45,24 @@ Currently as it stands there is a manual process to provide the necessary inputs
   * All that is needed is M3 (14mm+) screws, M3 hex nuts, and lasercut parts
   * I use nylon bushings in the main pivot with m3 screws for a smoother joint but this is optional 
 
+## Documentation
+http://tinylabs.io/openfixture
+
+## BOM
+http://tinylabs.io/openfixture-bom
+
+## Kicad export
+http://tinylabs.io/openfixture-kicad-export
+
 ## Assembly
-More info including detailed assembly instructions at http://tinylabs.io/openfixture
+More info including detailed assembly instructions at http://tinylabs.io/openfixture-assembly
 
 ## Dependencies
   * Newer version of openscad >= 2015.03-1
-  * kicad
-
-## Documentation
-TODO
+  * kicad or other EDA software. Please email me if you have instructions for other packages so I can add them.
 
 ## Known Issues
-  * When loading the fonts file a new small window opens in Ubuntu. Seems innocuous but still annoying
+  * When loading the fonts file a new small window opens in Ubuntu. Seems innocuous but still annoying [Only seen on ubuntu 14.04]
 
 ## License
 Creative Commons (CC BY-SA 4.0)
