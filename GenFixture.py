@@ -1,3 +1,4 @@
+#!/usr/bin/python
 #
 # Kicad OpenFixture Generator
 #
@@ -9,6 +10,11 @@
 # 1. pcb_th (mm) - PCB thickness
 # 2. mat_th (mm) - Laser cut material thickness
 #
+# TODO - Add pad attributes to force testpoint and force ignoring test point
+#        Default is all pads with no mask are test points.
+#        Add args for:
+#            MANDATORY: pcb_th and mat_th and output directory
+#            OPTIONAL: pivot_d, screw_len
 import sys
 from pcbnew import *
 
@@ -28,11 +34,9 @@ class GenFixture:
         pass
 
     def __str__(self):
-        return "Fixture: origin=(%f,%f) dims=(%f,%f) min_y=%f" % (self.origin[0],
-                                                                  self.origin[1],
-                                                                  self.dims[0],
-                                                                  self.dims[1],
-                                                                  self.min_y)
+        return "Fixture: origin=(%.02f,%.02f) dims=(%.02f,%.02f) min_y=%.02f" % (self.origin[0], self.origin[1],
+                                                                                 self.dims[0], self.dims[1],
+                                                                                 self.min_y)
     
     def Round(self, x, base=0.01):
         return round(base*round(x/base), 2)
@@ -91,7 +95,7 @@ class GenFixture:
         fixture.GetTestPoints ()
 
         # Debug dump test points
-        fixture.DumpTestPoints ()
+        print fixture.GetTestPointStr ()
         
         # Plot DXF
         fixture.PlotDXF (path)
@@ -99,9 +103,11 @@ class GenFixture:
         # Call openscad to generate fixture
         
         
-    def DumpTestPoints (self):
+    def GetTestPointStr (self):
+        tps = "["
         for tp in self.test_points:
-            print "[%f, %f]," % (tp[0], tp[1])
+            tps += "[%.02f,%.02f]," % (tp[0], tp[1])
+        return (tps + "]")
 
     def GetTestPoints (self):
 
@@ -120,7 +126,7 @@ class GenFixture:
                     # Round x and y
                     x = self.Round(tp[0] - self.origin[0])
                     y = self.Round(tp[1] - self.origin[1])
-                    print "tp = (%f, %f)" % (x,y)
+                    #print "tp = (%f, %f)" % (x,y)
                     
                     # Check if less than min
                     if y < self.min_y:
