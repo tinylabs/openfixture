@@ -70,9 +70,6 @@ if (mode == "lasercut") projection (cut = false) lasercut ();
 if (mode == "3dmodel") 3d_model ();
 if (mode == "validate") validate_testpoints (pcb_outline);
     
-//3d_head ();  // Uncomment for 3d head rendering
-//3d_base ();  // Uncomment for 3d base rendering 
-
 //
 // End PCB input
 //
@@ -609,22 +606,6 @@ module spacer ()
     }
 }
 
-module validate_testpoints (dxf_filename)
-{
-    hull () {
-        linear_extrude (height = mat_th)
-        import (dxf_filename);
-    }
-    // Loop over test points
-    for ( i = [0 : len (test_points) - 1] ) {
-    
-        // Drop pins for test points
-        color ([1, 0, 0])
-        translate ([test_points[i][0], -test_points[i][1], 0])
-        cylinder (r = pogo_r, h = mat_th);
-    }
-
-}
 module carrier (dxf_filename, pcb_x, pcb_y, border)
 {
     x = base_x;
@@ -751,84 +732,99 @@ module 3d_model () {
     3d_latch ();
 }
 
-module alignment_check ()
+module validate_testpoints (dxf_filename)
 {
-    // Just need base and upper carrier
-    head_base ();
-    // Add board carrier
-    translate ([head_x + tab_length, 0, 0])
-    carrier (pcb_outline, pcb_x, pcb_y, 0);
+    hull () {
+        linear_extrude (height = mat_th)
+        import (dxf_filename);
+    }
+    // Loop over test points
+    for ( i = [0 : len (test_points) - 1] ) {
+    
+        // Drop pins for test points
+        color ([1, 0, 0])
+        translate ([test_points[i][0], -test_points[i][1], 0])
+        cylinder (r = pogo_r, h = mat_th);
+    }
 }
 
 module lasercut ()
 {
-    // Base components
-    base_side ();
-    translate ([2 * base_z + base_pivot_offset + pivot_d + laser_pad, base_y, 0])
-    rotate ([0, 0, 180])
-    base_side ();
-        
-    // Add spacers
-    xoffset = base_z + tab_width / 2 + laser_pad;
-    yoffset1 = base_z + pivot_d + (3 * mat_th / 2) + screw_d + pivot_d + laser_pad;
-    translate ([xoffset, yoffset1, 0])
-    spacer ();
-    yoffset2 = yoffset1 + 2 * pivot_d + laser_pad;
-    translate ([xoffset, yoffset2, 0])
-    spacer ();
-    
-    // Add base supports
-    xoffset1 = 2 * base_z + base_pivot_offset + pivot_d + 2 * laser_pad;
-    translate ([xoffset1, 0, 0])
-    base_front_support ();
-    yoffset3 = head_y / 3 + laser_pad;
-    translate ([xoffset1, yoffset3, 0])
-    base_support (head_y / 3);
-    yoffset4 = yoffset3 + head_y / 3 + laser_pad;
-    translate ([xoffset1, yoffset4, 0])
-    base_back_support ();
-
-    // Add heads
-    xoffset2 = xoffset1 + 2 * base_x + tab_length;
-    translate ([xoffset2, 0, 0])
-    mirror ([1, 0, 0])
-    head_base ();
-    xoffset3 = xoffset2 + tab_length + laser_pad;
-    translate ([xoffset3, 0, 0])
-    head_top ();
-    
-    // Add carriers
-    yoffset5 = -head_y - laser_pad;
-    translate ([0, yoffset5, 0])
+    // Add carrier panels
     carrier (pcb_outline, pcb_x, pcb_y, pcb_support_border);
-    xoffset4 = base_x + laser_pad;
-    translate ([xoffset4, yoffset5, 0])
+    xoffset1 = base_x + laser_pad;
+    translate ([xoffset1, 0, 0])
     carrier (pcb_outline, pcb_x, pcb_y, 0);
     
-    // Add sides
-    xoffset5 = xoffset4 + base_x + laser_pad;
-    yoffset6 = yoffset5 - 2 * pivot_d;
-    translate ([xoffset5, yoffset6, 0])
-    head_side ();
-    xoffset6 = xoffset5 + head_z + laser_pad;
-    translate ([xoffset6, yoffset6, 0])
-    head_side ();
-    xoffset7 = xoffset6 + head_z + laser_pad;
-    translate ([xoffset7, -head_z - laser_pad, 0])
-    head_front_back ();
-    translate ([xoffset7, -2 * head_z - 2 * laser_pad, 0])
-    head_front_back ();
+    // Add head top
+    xoffset2 = xoffset1 + base_x + laser_pad;
+    translate ([xoffset2, 0, 0])
+    head_top ();
+
+    // Add head base, flip to take advantage of kerf securing nuts
+    xoffset3 = xoffset2 + 2 * head_x + tab_length + laser_pad;
+    translate ([xoffset3, 0, 0])
+    mirror ([1, 0, 0])
+    head_base ();
     
-    // Add latch_support
-    yoffset7 = -(3 * head_z + 3 * laser_pad);
-    translate ([xoffset7, yoffset7, 0])
+    // Add base sides
+    yoffset1 = -base_y - laser_pad;
+    translate ([0, yoffset1, 0])
+    base_side ();
+    xoffset4 = 2 * base_z + base_pivot_offset + 2 * laser_pad;
+    translate ([xoffset4, -laser_pad, 0])
+    rotate ([0, 0, 180])
+    base_side ();
+    
+    // Add spacer in center
+    xoffset5 = base_z + base_pivot_offset;
+    yoffset2 = -(base_y / 2) + pivot_r + laser_pad;
+    translate ([xoffset5, yoffset2, 0])
+    spacer ();
+    yoffset3 = -(base_y / 2) - pivot_r - laser_pad;
+    translate ([xoffset5, yoffset3, 0])
+    spacer ();
+    
+    // Add cross supports
+    xoffset6 = 2 * base_z + base_pivot_offset + 3 * laser_pad;
+    yoffset4 = -(base_z + base_pivot_offset + pivot_d + laser_pad); 
+    translate ([xoffset6, yoffset4, 0])
+    base_back_support ();
+    yoffset5 = yoffset4 - (head_y / 3) - laser_pad; 
+    translate ([xoffset6, yoffset5, 0])
+    base_support (head_y / 3);
+    translate ([xoffset6, yoffset5 - (head_y / 3) - laser_pad, 0])
+    base_front_support ();
+    
+    // Add head sides
+    xoffset7 = xoffset6 + base_x + laser_pad;
+    yoffset6 = -head_y - 2 * (pivot_d) - laser_pad;
+    translate ([xoffset7, yoffset6, 0])
+    head_side ();
+    xoffset8 = xoffset7 + head_z + laser_pad;
+    translate ([xoffset8, yoffset6, 0])
+    head_side ();
+    
+    // Add front tag support
+    xoffset9 = xoffset8 + head_z + laser_pad;
+    yoffset7 = -(base_z * (2 / 3) + base_pivot_offset - pivot_d - 2 * mat_th) - laser_pad;
+    translate ([xoffset9, yoffset7, 0])
     latch_support ();
     
-    // Add latches
-   yoffset8 = yoffset7 - 2 * base_z;
-   xoffset8 = xoffset7 + 2 * support_x;
-   translate ([xoffset8, yoffset8, 0])
-   latch ();
-   translate ([xoffset8 + 2 * support_x + laser_pad, yoffset8, 0])
-   latch ();
+    // Add head front/back
+    yoffset8 = yoffset7 - head_z - laser_pad;
+    translate ([xoffset9, yoffset8, 0])
+    head_front_back ();
+    yoffset9 = yoffset8 - head_z - laser_pad;
+    translate ([xoffset9, yoffset9, 0])
+    head_front_back ();
+    
+    // Add latch sides
+    xoffset10 = xoffset9 + screw_d + support_x;
+    yoffset10 = yoffset9 - (base_z * (2 / 3) + base_pivot_offset + pivot_d) - 2 * laser_pad;
+    translate ([xoffset10, yoffset10, 0])
+    latch ();
+    xoffset11 = xoffset10 + screw_d + support_x + pivot_d + 2 * laser_pad;
+    translate ([xoffset11, yoffset10, 0])
+    latch ();
 }

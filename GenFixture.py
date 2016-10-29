@@ -145,6 +145,11 @@ class GenFixture:
         # Plot DXF
         self.PlotDXF (path)
 
+        # Get revision
+        rev = self.brd.GetTitleBlock().GetRevision ()
+        if rev == "":
+            rev = "0"
+
         # Call openscad to generate fixture
         args = "-D\'test_points=%s\'" % self.GetTestPointStr () 
         args += " -D\'tp_min_y=%.02f\'" % self.min_y
@@ -153,7 +158,7 @@ class GenFixture:
         args += " -D\'pcb_x=%.02f\'" % self.dims[0]
         args += " -D\'pcb_y=%.02f\'" % self.dims[1]
         args += " -D\'pcb_outline=\"%s\"\'" % (path + "/" + self.prj_name + "-outline.dxf")
-        args += " -D\'rev=\"%s\"\'" % ("REV." + self.brd.GetTitleBlock().GetRevision ())
+        args += " -D\'rev=\"%s\"\'" % ("REV." + rev)
 
         # Create output file name
         dxfout = path + "/" + self.prj_name + "-fixture.dxf"
@@ -299,3 +304,4 @@ if __name__ == '__main__':
     
     # Generate fixture
     fixture.Generate (out_dir)
+    # print fixture
