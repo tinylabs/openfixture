@@ -15,9 +15,9 @@
  *  Tiny Labs
  *  2016
  */
- 
-use <Videopac.otf>
- 
+use <glaser-stencil-d.ttf>
+FONTNAME = "Glaser Stencil D";
+
 //
 // PCB input
 //
@@ -33,6 +33,8 @@ tp_min_y = 13.7;
 pcb_outline = "./rfid_fob-outline.dxf";
 osh_logo = "./osh_logo.dxf";
 
+// PCB revision
+rev = "rev.0";
 
 // Should be close to actual pcb dimensions... Used for support structure only so not critical
 pcb_x = 27.14;
@@ -339,6 +341,13 @@ module head_base ()
         cube ([mat_th, tab_width / 4, mat_th]);
         translate ([head_x + mat_th, head_y / 12 - tab_width / 2, 0])
         cube ([mat_th, tab_width / 4, mat_th]);
+
+        // Add revision backwards and upside down
+        translate ([head_x/ 2, head_y - 15, 0])
+        linear_extrude (height = mat_th)
+        rotate ([0, 0, 180])
+        mirror ([1, 0, 0])
+        text (rev, font = FONTNAME, halign = "center", valign = "center", size = 6);
     }
 }
 module osh_logo () {
@@ -517,10 +526,6 @@ module base_side ()
         tng_n (x, 3);
         translate ([x/2 + mat_th, y - pivot_d, 0])        
         tnut_hole ();
-        
-        // Remove locking pivot hole
-        //translate ([x / 3, tab_width / 2, 0])
-        //cylinder (r = screw_r, h = mat_th, $fn = 20);
     }
 }
 
@@ -658,10 +663,10 @@ module carrier (dxf_filename, pcb_x, pcb_y, border)
         translate ([x - mat_th / 2, y / 2, 0])
         tnut_hole ();
         
-        // Add label to distinguish TOP
+        // Add revision ID, also allows to determine which side is top
         translate ([x / 2, y - 10, 0])
         linear_extrude (height = mat_th)
-        text ("top", font = "Videopac", halign = "center", size = 8);
+        text (rev, font = FONTNAME, halign = "center", size = 6);
     }
 }
 
@@ -775,7 +780,7 @@ module lasercut ()
     // Add base supports
     xoffset1 = 2 * base_z + base_pivot_offset + pivot_d + 2 * laser_pad;
     translate ([xoffset1, 0, 0])
-    base_support (head_y / 3);
+    base_front_support ();
     yoffset3 = head_y / 3 + laser_pad;
     translate ([xoffset1, yoffset3, 0])
     base_support (head_y / 3);

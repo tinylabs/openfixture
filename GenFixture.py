@@ -153,6 +153,7 @@ class GenFixture:
         args += " -D\'pcb_x=%.02f\'" % self.dims[0]
         args += " -D\'pcb_y=%.02f\'" % self.dims[1]
         args += " -D\'pcb_outline=\"%s\"\'" % (path + "/" + self.prj_name + "-outline.dxf")
+        args += " -D\'rev=\"%s\"\'" % ("REV." + self.brd.GetTitleBlock().GetRevision ())
 
         # Create output file name
         dxfout = path + "/" + self.prj_name + "-fixture.dxf"
@@ -269,7 +270,11 @@ if __name__ == '__main__':
     args = parser.parse_args ()
 
     # Convert path to absolute
-    args.out = os.path.abspath (args.out)
+    out_dir = os.path.abspath (args.out)
+
+    # If output directory doesn't exist create it
+    if not os.path.exists (out_dir):
+        os.makedirs (out_dir)
 
     # Load up the board file
     brd = LoadBoard (args.board)
@@ -293,4 +298,4 @@ if __name__ == '__main__':
     fixture.SetLayers (layer=layer, flayer=flayer, ilayer=ilayer)
     
     # Generate fixture
-    fixture.Generate (args.out)
+    fixture.Generate (out_dir)
