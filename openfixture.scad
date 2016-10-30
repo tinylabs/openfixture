@@ -8,7 +8,7 @@
  *   3. dxf of pcb outline aligned with (0,0) on the top left.
  *   4. Material parameters: acrylic thickness, kerf, etc
  *
- *  The output is a dxf containing all the parts (minus M3 hardware
+ *  The output is a dxf containing all the parts (minus M3 hardware)
  *  to assemble the fixture.
  *
  *  Creative Commons Licensed  (CC BY-SA 4.0)
@@ -43,14 +43,18 @@ pcb_support_border = 2;
 
 // Work area of PCB
 // Must be >= PCB size
-// If you make this as big as any of the PCBs you work with you could then reuse the base and just
-// swap the head and carriers based on the pcb you're using 
+// If you make this as big as any of the PCBs you work 
+// with you could then reuse the base and just swap the
+// head and carriers based on the pcb you're using. 
 work_area_x = pcb_x;
 work_area_y = pcb_y;
 
 // Thickness of pcb
-pcb_th = 0.8;
-//pcb_th = 1.6;  // Standard PCB size
+pcb_th = 1.6;  // Standard PCB size
+
+//
+// End PCB input
+//
 
 // Correction offset
 // These are final adjustments relative to the board carrier.
@@ -61,18 +65,15 @@ tp_correction_offset_y = 0.0;
 // Uncomment for alignment check, can be a quick sanity check to
 // make sure everything lines up.
 //projection (cut = false) alignment_check ();
-//mode = "3dmodel";
-mode = "lasercut";
+mode = "3dmodel";
+//mode = "lasercut";
 //mode = "validate";
+//mode = "none";
 
 // Uncomment for laser cuttable dxf
 if (mode == "lasercut") projection (cut = false) lasercut ();
 if (mode == "3dmodel") 3d_model ();
 if (mode == "validate") validate_testpoints (pcb_outline);
-    
-//
-// End PCB input
-//
 
 // Smothness function for circles
 $fn = 15;
@@ -92,14 +93,18 @@ laser_pad = 2;
 // Just the threads, not including head
 // Should be no less than 12
 screw_thr_len = 14;
-screw_d = 2.9;
+screw_d = 3.0;
 screw_r = screw_d / 2;
 
 // Uncomment to use normal M3 screw for pivot
 pivot_d = screw_d;
-// Uncomment to use bushing
+// Uncomment to use bushing in pivot
 //pivot_d = 5.12;
 pivot_r = pivot_d / 2;
+
+// Pivot support, 3mm on either side 
+pivot_support_d = pivot_d + 6;
+pivot_support_r = pivot_support_d / 2;
 
 // Metric M3 hex nut dimensions
 // f2f = flat to flat
@@ -108,9 +113,10 @@ nut_od_c2c = 6;
 nut_th = 2.25;
 
 // Pogo pin receptable dimensions
-// I use the 2 part pogos with replaceable pins. Its a lifer save when a pin breaks
-// Undersized so they can be carefully drilled out using #50 drill bit for better precision
-// If you have access to a nicer laser you can size these exactly
+// I use the 2 part pogos with replaceable pins. Its a lifer save when a 
+// pin breaks. Undersized so they can be carefully drilled out using #50
+// drill bit for better precision. If you have access to a nicer laser you 
+// can size these exactly
 pogo_r = 1.5 / 2;
 
 // Uncompressed length from receptacle
@@ -130,12 +136,12 @@ stop_tab_y = 2 * mat_th;
 // Calculate min distance to hinge with a constraint on
 // the angle of the pogo pin when it meets compression with the board.
 // a = compression
-// c = active_y_offset + pivot_d
+// c = active_y_offset + pivot_support_r
 // cos (min_angle) = a^2 / (2ca)
 min_angle = 89.5;
 
 // Calculate active_y_back_offset
-active_y_back_offset = (pow (pogo_compression, 2) / (cos (min_angle) * 2 * pogo_compression)) - pivot_d - tp_min_y;
+active_y_back_offset = (pow (pogo_compression, 2) / (cos (min_angle) * 2 * pogo_compression)) - pivot_support_r - tp_min_y;
 
 // Active area parameters
 active_x_offset = 2 * mat_th + nut_od_f2f + 2;
@@ -148,9 +154,11 @@ head_z = screw_thr_len + (mat_th - nut_th);
 
 // Base dimensions
 base_x = head_x + 2 * mat_th;
-base_y = head_y + 2 * pivot_d;
+base_y = head_y + pivot_support_d;
 base_z = screw_thr_len + 3 * mat_th;
-base_pivot_offset = pivot_d + (pogo_uncompressed_length - pogo_compression) - (mat_th - pcb_th);
+base_pivot_offset = pivot_support_r + 
+                    (pogo_uncompressed_length - pogo_compression) -
+                    (mat_th - pcb_th);
 
 // To account for capture nut overhang
 nut_pad = (nut_od_c2c - mat_th) / 2;
@@ -162,7 +170,7 @@ support_x = base_x / 12 + 2 * mat_th;
 //
 // MODULES
 //
-module tnut_female (n)
+module tnut_female (n, length = screw_thr_len)
 {
     // How much grip material
     tnut_grip = 4;
@@ -173,7 +181,7 @@ module tnut_female (n)
     
     // Screw hole
     translate ([0, -screw_r - pad/2, 0])
-    cube ([screw_thr_len + screw_len_pad, screw_d + pad, mat_th]);
+    cube ([length + screw_len_pad, screw_d + pad, mat_th]);
     
     // Make space for nut
     translate ([mat_th * n + tnut_grip, -nut_od_f2f/2, 0])
@@ -212,28 +220,17 @@ module tng_p (length, cnt)
     }
 }
 
-
-module spacer ()
-{
-    difference () {
-        cylinder (r = screw_d, h = mat_th);
-        cylinder (r = screw_r, h = mat_th);
-    }
-}
-
 module nut_hole ()
 {
-    difference () {
-        cylinder (r = nut_od_c2c/2, h = mat_th, $fn = 6);
-        //cylinder (r = screw_r, h = mat_th, $fn = 20);
-    }
+    pad = 0.1;
+    cylinder (r = nut_od_c2c/2 + pad, h = mat_th, $fn = 6);
 }
 
 module head_side ()
 {
     x = head_z;
     y = head_y;
-    r = pivot_d;
+    r = pivot_support_r;
     
     difference () {
         union () {
@@ -242,15 +239,15 @@ module head_side ()
                 cube ([x, 0.01, mat_th]);
                 
                 // Add pivot point
-                translate ([r, y + r, 0])
-                cylinder (r = r, h = mat_th, $fn = 20);
+                translate ([r, y + pivot_support_r, 0])
+                cylinder (r = pivot_support_r, h = mat_th, $fn = 20);
             }
             cube ([x, y, mat_th]);
         }
             
         // Remove pivot
         translate ([r, y + r, 0])
-        cylinder (r = r/2, h = mat_th, $fn = 20);
+        cylinder (r = pivot_r, h = mat_th, $fn = 20);
         
         // Remove slots
         translate ([0, y / 2, 0])
@@ -340,7 +337,7 @@ module head_base ()
         cube ([mat_th, tab_width / 4, mat_th]);
 
         // Add revision backwards and upside down
-        translate ([head_x/ 2, head_y - 15, 0])
+        translate ([head_x / 2, head_y - 25, 0])
         linear_extrude (height = mat_th)
         rotate ([0, 0, 180])
         mirror ([1, 0, 0])
@@ -414,7 +411,7 @@ module head_base_common ()
 module latch_support ()
 {
     x = base_x + 2 * mat_th;
-    y = base_z * (2 / 3) + base_pivot_offset - pivot_d - 2 * mat_th;
+    y = base_z * (2 / 3) + base_pivot_offset - pivot_support_r - 2 * mat_th;
     
     difference () {
         cube ([x, y, mat_th]);
@@ -437,7 +434,7 @@ module latch_support ()
 module latch ()
 {    
     pad = tab_width / 16;
-    y = base_z * (2 / 3) + base_pivot_offset - pivot_d;
+    y = base_z * (2 / 3) + base_pivot_offset - pivot_support_r;
     difference () {
   
         hull () {
@@ -477,15 +474,15 @@ module base_side ()
             
             // Add pivot structure
             hull () {
-                translate ([x + base_pivot_offset, y - pivot_d, 0])
-                cylinder (r = pivot_d, h = mat_th, $fn = 20);
-                translate ([0, y - 2 * pivot_d, 0])
-                cube ([1, 2 * pivot_d, mat_th]);
+                translate ([x + base_pivot_offset, y - pivot_support_d / 2, 0])
+                cylinder (r = pivot_support_d / 2, h = mat_th, $fn = 20);
+                translate ([0, y - pivot_support_d, 0])
+                cube ([1, pivot_support_d, mat_th]);
             }
         }
         
         // Remove pivot hole
-        translate ([x + base_pivot_offset, y - pivot_d, 0])
+        translate ([x + base_pivot_offset, y - pivot_support_d / 2, 0])
         cylinder (r = pivot_r, h = mat_th, $fn = 20);
 
         // Remove carrier slots
@@ -503,11 +500,9 @@ module base_side ()
         support_offset = 2 * mat_th;
         
         // Cross bar support
-        //translate ([support_offset, head_y / 6 + screw_d + 2  * mat_th, 0])
         translate ([support_offset, head_y / 6, 0])
         mirror ([0, 1, 0])
         tng_n (head_y / 3, 2);
-        //translate ([support_offset + mat_th / 2, head_y / 6 + screw_d + 2 * mat_th, 0])
         translate ([support_offset + mat_th / 2, head_y / 12, 0])
         tnut_hole ();
         
@@ -518,10 +513,10 @@ module base_side ()
         tnut_hole ();
         
         // Back support
-        translate ([x/2 + mat_th, y - pivot_d - (mat_th / 2), 0])
+        translate ([x / 2 + mat_th, y - pivot_support_d / 2 - (mat_th / 2), 0])
         rotate ([0, 0, 90])
         tng_n (x, 3);
-        translate ([x/2 + mat_th, y - pivot_d, 0])        
+        translate ([x / 2 + mat_th, y - pivot_support_d / 2, 0])        
         tnut_hole ();
     }
 }
@@ -545,10 +540,10 @@ module base_front_support ()
         
         // Remove female tnuts
         translate ([0, y / 4, 0])
-        tnut_female (1);
+        tnut_female (1, length = screw_thr_len - mat_th);
         translate ([x, y / 4, 0])
         rotate ([0, 0, 180])
-        tnut_female (1);
+        tnut_female (1, length = screw_thr_len - mat_th);
     }
 }
 
@@ -601,7 +596,7 @@ module base_back_support ()
 module spacer ()
 {
     difference () {
-        cylinder (r = pivot_d, h = mat_th, $fn = 40);
+        cylinder (r = pivot_support_r, h = mat_th, $fn = 20);
         cylinder (r = pivot_r, h = mat_th, $fn = 20);
     }
 }
@@ -645,9 +640,9 @@ module carrier (dxf_filename, pcb_x, pcb_y, border)
         tnut_hole ();
         
         // Add revision ID, also allows to determine which side is top
-        translate ([x / 2, y - 10, 0])
+        translate ([x / 2, y - 25, 0])
         linear_extrude (height = mat_th)
-        text (rev, font = FONTNAME, halign = "center", size = 6);
+        text (rev, font = FONTNAME, halign = "center", valign = "center", size = 6);
     }
 }
 
@@ -689,15 +684,15 @@ module 3d_base () {
     base_front_support ();
     translate ([-mat_th, head_y - (head_y / 3) - mat_th, 2 * mat_th])
     base_support (head_y / 3);
-    translate ([-mat_th, base_y - pivot_d + mat_th/2, mat_th])
+    translate ([-mat_th, base_y - pivot_support_r + mat_th/2, mat_th])
     rotate ([90, 0, 0])
     base_back_support ();
     
     // Add spacers
-    translate ([0, base_y - pivot_d, base_z + base_pivot_offset])
+    translate ([0, base_y - pivot_support_r, base_z + base_pivot_offset])
     rotate ([0, 90, 0])
     spacer ();
-    translate ([base_x - 3 * mat_th, base_y - pivot_d, base_z + base_pivot_offset])
+    translate ([base_x - 3 * mat_th, base_y - pivot_support_r, base_z + base_pivot_offset])
     rotate ([0, 90, 0])
     spacer ();
     
@@ -721,10 +716,10 @@ module 3d_latch () {
 }
 
 module 3d_model () {
-    translate ([0, 0, base_z + base_pivot_offset - pivot_d])
-    translate ([0, head_y + pivot_d, pivot_d])
+    translate ([0, 0, base_z + base_pivot_offset - pivot_support_r])
+    translate ([0, head_y + pivot_support_r, pivot_support_r])
     rotate ([-15, 0, 0])
-    translate ([0, -head_y - pivot_d, -pivot_d])
+    translate ([0, -head_y - pivot_support_r, -pivot_support_r])
     3d_head ();
     3d_base ();
     translate ([0, head_y / 12, base_z / 3])
@@ -771,23 +766,23 @@ module lasercut ()
     yoffset1 = -base_y - laser_pad;
     translate ([0, yoffset1, 0])
     base_side ();
-    xoffset4 = 2 * base_z + base_pivot_offset + 2 * laser_pad;
+    xoffset4 = 2 * base_z + base_pivot_offset + pivot_support_r + laser_pad;
     translate ([xoffset4, -laser_pad, 0])
     rotate ([0, 0, 180])
     base_side ();
     
     // Add spacer in center
     xoffset5 = base_z + base_pivot_offset;
-    yoffset2 = -(base_y / 2) + pivot_r + laser_pad;
+    yoffset2 = -(base_y / 2) + pivot_support_r + laser_pad;
     translate ([xoffset5, yoffset2, 0])
     spacer ();
-    yoffset3 = -(base_y / 2) - pivot_r - laser_pad;
+    yoffset3 = -(base_y / 2) - pivot_support_r - laser_pad;
     translate ([xoffset5, yoffset3, 0])
     spacer ();
     
     // Add cross supports
-    xoffset6 = 2 * base_z + base_pivot_offset + 3 * laser_pad;
-    yoffset4 = -(base_z + base_pivot_offset + pivot_d + laser_pad); 
+    xoffset6 = 2 * base_z + base_pivot_offset + pivot_support_r + 2 * laser_pad;
+    yoffset4 = -(base_z + base_pivot_offset + pivot_support_r + laser_pad); 
     translate ([xoffset6, yoffset4, 0])
     base_back_support ();
     yoffset5 = yoffset4 - (head_y / 3) - laser_pad; 
@@ -798,7 +793,7 @@ module lasercut ()
     
     // Add head sides
     xoffset7 = xoffset6 + base_x + laser_pad;
-    yoffset6 = -head_y - 2 * (pivot_d) - laser_pad;
+    yoffset6 = -head_y - 2 * (pivot_support_r) - laser_pad;
     translate ([xoffset7, yoffset6, 0])
     head_side ();
     xoffset8 = xoffset7 + head_z + laser_pad;
@@ -807,7 +802,7 @@ module lasercut ()
     
     // Add front tag support
     xoffset9 = xoffset8 + head_z + laser_pad;
-    yoffset7 = -(base_z * (2 / 3) + base_pivot_offset - pivot_d - 2 * mat_th) - laser_pad;
+    yoffset7 = -(base_z * (2 / 3) + base_pivot_offset - pivot_support_r - 2 * mat_th) - laser_pad;
     translate ([xoffset9, yoffset7, 0])
     latch_support ();
     
@@ -821,10 +816,10 @@ module lasercut ()
     
     // Add latch sides
     xoffset10 = xoffset9 + screw_d + support_x;
-    yoffset10 = yoffset9 - (base_z * (2 / 3) + base_pivot_offset + pivot_d) - 2 * laser_pad;
+    yoffset10 = yoffset9 - (base_z * (2 / 3) + base_pivot_offset + pivot_support_r) - 2 * laser_pad;
     translate ([xoffset10, yoffset10, 0])
     latch ();
-    xoffset11 = xoffset10 + screw_d + support_x + pivot_d + 2 * laser_pad;
+    xoffset11 = xoffset10 + screw_d + support_x + pivot_support_r + 2 * laser_pad;
     translate ([xoffset11, yoffset10, 0])
     latch ();
 }

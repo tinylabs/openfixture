@@ -23,8 +23,9 @@ import argparse
 from pcbnew import *
 
 # Defaults
-DEFAULT_SCREW_LEN = 14
 DEFAULT_PCB_TH = 1.6
+DEFAULT_SCREW_D = 3.0
+DEFAULT_SCREW_LEN = 14
 
 # Generate fixture class
 class GenFixture:
@@ -42,7 +43,8 @@ class GenFixture:
     mat_th = 0
     pcb_th = DEFAULT_PCB_TH
     screw_len = DEFAULT_SCREW_LEN
-    
+    screw_d = DEFAULT_SCREW_D
+
     # Global pointer to brd object
     brd = None
 
@@ -56,12 +58,11 @@ class GenFixture:
     dims = [0, 0]
     test_points = []
     
-    def __init__(self, prj_name, brd, pcb, mat):
+    def __init__(self, prj_name, brd, mat_th):
         self.prj_name = prj_name
         self.brd = brd
-        self.pcb_th = pcb
-        self.mat_th = mat
-
+        self.mat_th = float (mat_th)
+        
     def __exit__(self, type, value, traceback):
         pass
 
@@ -69,6 +70,14 @@ class GenFixture:
         return "Fixture: origin=(%.02f,%.02f) dims=(%.02f,%.02f) min_y=%.02f" % (self.origin[0], self.origin[1],
                                                                                  self.dims[0], self.dims[1],
                                                                                  self.min_y)
+
+    def SetParams(self, pcb_th, screw_len, screw_d):
+        if pcb_th is not None:
+            self.pcb_th = float (pcb_th)
+        if screw_len is not None:
+            self.screw_len = float (screw_len)
+        if screw_d is not None:
+            self.screw_d = float (screw_d)
 
     def SetLayers(self, layer=-1, ilayer=-1, flayer=-1):
         if layer != -1:
@@ -159,7 +168,9 @@ class GenFixture:
         args += " -D\'pcb_y=%.02f\'" % self.dims[1]
         args += " -D\'pcb_outline=\"%s\"\'" % (path + "/" + self.prj_name + "-outline.dxf")
         args += " -D\'rev=\"%s\"\'" % ("REV." + rev)
-
+        args += " -D\'screw_thr_len=%.02f\'" % self.screw_len
+        args += " -D\'screw_d=%.02f\'" % self.screw_d
+        
         # Create output file name
         dxfout = path + "/" + self.prj_name + "-fixture.dxf"
         
@@ -267,6 +278,8 @@ if __name__ == '__main__':
     
     # Add optional arguments
     parser.add_argument ('--pcb_th', help='pcb thickness (mm)')
+    parser.add_argument ('--screw_len', help='Assembly screw thread length (default = 14mm)')
+    parser.add_argument ('--screw_d', help='Assembly screw diameter (default=M3)')
     parser.add_argument ('--layer', help='F.Cu | B.Cu')
     parser.add_argument ('--flayer', help='Eco1.User | Eco2.User')
     parser.add_argument ('--ilayer', help='Eco1.User | Eco2.User')
@@ -297,7 +310,10 @@ if __name__ == '__main__':
         args.pcb_th = "1.6"
 
     # Create a fixture generator
-    fixture = GenFixture (prj_name, brd, float (args.pcb_th), float(args.mat_th))
+    fixture = GenFixture (prj_name, brd, args.mat_th)
+
+    # Set parameters
+    fixture.SetParams (args.pcb_th, args.screw_len, args.screw_d);
 
     # Setup layers
     fixture.SetLayers (layer=layer, flayer=flayer, ilayer=ilayer)
