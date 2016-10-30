@@ -9,7 +9,7 @@ The motivation of OpenFixture was to make a parametric fixturing system that cou
 
 ## Parameters
 For most projects (if using the standard BOM) the only parameters you'll need to set are mat_th and pcb_th. Something like the following should be sufficient:
-  * ./GenFixture.py --board <path to board.kicad_pcb> --mat_th <thickness in mm> --pcb_th <defaults to 1.6mm> --out board-fixture
+  * ./GenFixture.py --board [path to board.kicad_pcb] --mat_th [thickness in mm] --pcb_th [thickness in mm] --out board-fixture
 
 usage: GenFixture.py [-h] --board BOARD --mat_th MAT_TH --out OUT
                      [--pcb_th PCB_TH] [--screw_len SCREW_LEN]
