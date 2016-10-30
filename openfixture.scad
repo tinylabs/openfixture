@@ -222,7 +222,7 @@ module tng_p (length, cnt)
 
 module nut_hole ()
 {
-    pad = 0.1;
+    pad = 0.05;
     cylinder (r = nut_od_c2c/2 + pad, h = mat_th, $fn = 6);
 }
 
@@ -258,7 +258,7 @@ module head_side ()
         // Remove lincoln log slots
         translate ([0, mat_th, 0])
         cube ([x / 2, mat_th, mat_th]);
-        translate ([0, y - 2 * mat_th, 0])
+        translate ([0, y - 3 * mat_th, 0])
         cube ([x / 2, mat_th, mat_th]);
     }
 }
@@ -305,36 +305,34 @@ module head_base ()
             // Common base
             head_base_common ();
 
-            // Add stop tabs
-            translate ([head_x, head_y - stop_tab_y + 2 * kerf, 0])
-            cube ([mat_th, stop_tab_y, mat_th]);
-            translate ([-mat_th, head_y - stop_tab_y + 2 * kerf, 0])
-            cube ([mat_th, stop_tab_y, mat_th]);
-
             // Add lock tabs
             translate ([0, head_y / 12 - tab_width / 2, 0])
             lock_tab ();
             translate ([head_x, head_y / 12 - tab_width / 2, 0])
             mirror ([1, 0, 0])
             lock_tab ();
-
         }
+
+        // Remove back cutout
+        translate ([2 * mat_th, head_y - mat_th, 0])
+        cube ([head_x - 4 * mat_th, mat_th, mat_th]);
 
         // Remove holes for hex nuts
         translate ([nut_offset, nut_offset, 0])
         nut_hole ();
-        translate ([nut_offset, head_y - nut_offset, 0])
-        nut_hole ();
-        translate ([head_x - nut_offset, head_y - nut_offset, 0])
-        nut_hole ();
         translate ([head_x - nut_offset, nut_offset, 0])
         nut_hole ();
+        // Offset these +1 mat_th to allow cutout for swivel
+        translate ([nut_offset, head_y - nut_offset - mat_th, 0])
+        nut_hole ();
+        translate ([head_x - nut_offset, head_y - nut_offset - mat_th, 0])
+        nut_hole ();
         
-        // Take 1/4 mouse bit out of front of tabs
+        // Take 1/3 mouse bit out of front of tabs
         translate ([-2 * mat_th, head_y / 12 - tab_width / 2, 0])
-        cube ([mat_th, tab_width / 4, mat_th]);
+        cube ([mat_th, tab_width / 3, mat_th]);
         translate ([head_x + mat_th, head_y / 12 - tab_width / 2, 0])
-        cube ([mat_th, tab_width / 4, mat_th]);
+        cube ([mat_th, tab_width / 3, mat_th]);
 
         // Add revision backwards and upside down
         translate ([head_x / 2, head_y - 25, 0])
@@ -344,6 +342,7 @@ module head_base ()
         text (rev, font = FONTNAME, halign = "center", valign = "center", size = 6);
     }
 }
+
 module osh_logo () {
     linear_extrude (height = mat_th)
     scale ([0.2, 0.2, 1])
@@ -388,7 +387,7 @@ module head_base_common ()
         tng_p (head_y, 3);
         translate ([head_x - 2 * mat_th, head_y / 2, 0])
         tng_p (head_y, 3);
-        translate ([head_x / 2, head_y - 2 * mat_th, 0])
+        translate ([head_x / 2, head_y - 3 * mat_th, 0])
         rotate ([0, 0, 90])
         tng_p (head_x + mat_th, 3);
         translate ([head_x / 2, mat_th, 0])        
@@ -433,7 +432,7 @@ module latch_support ()
 
 module latch ()
 {    
-    pad = tab_width / 16;
+    pad = tab_width / 12;
     y = base_z * (2 / 3) + base_pivot_offset - pivot_support_r;
     difference () {
   
@@ -662,7 +661,7 @@ module 3d_head ()
     head_side ();
     translate ([0, 0, head_top_offset])
     head_top ();
-    translate ([0, head_y - mat_th, 0])
+    translate ([0, head_y - 2 * mat_th, 0])
     rotate ([90, 0, 0])
     head_front_back ();
     translate ([0, 2 * mat_th, 0])
