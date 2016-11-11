@@ -52,6 +52,9 @@ class GenFixture:
     dxf_path = None
     prj_name = None
 
+    # Revision - Override if passed in
+    rev = None
+
     # Board dimensions
     min_y = float ("inf")
     origin = [ float ("inf"), float ("inf") ]
@@ -70,6 +73,9 @@ class GenFixture:
         return "Fixture: origin=(%.02f,%.02f) dims=(%.02f,%.02f) min_y=%.02f" % (self.origin[0], self.origin[1],
                                                                                  self.dims[0], self.dims[1],
                                                                                  self.min_y)
+
+    def SetRevision(self, rev):
+        self.rev = rev
 
     def SetParams(self, pcb_th, screw_len, screw_d):
         if pcb_th is not None:
@@ -155,9 +161,10 @@ class GenFixture:
         self.PlotDXF (path)
 
         # Get revision
-        rev = self.brd.GetTitleBlock().GetRevision ()
-        if rev == "":
-            rev = "0"
+        if self.rev is None:
+            self.rev = "rev.%s" % self.brd.GetTitleBlock().GetRevision ()
+            if self.rev == "":
+                self.rev = "rev.0"
 
         # Call openscad to generate fixture
         args = "-D\'test_points=%s\'" % self.GetTestPointStr () 
@@ -167,7 +174,7 @@ class GenFixture:
         args += " -D\'pcb_x=%.02f\'" % self.dims[0]
         args += " -D\'pcb_y=%.02f\'" % self.dims[1]
         args += " -D\'pcb_outline=\"%s\"\'" % (path + "/" + self.prj_name + "-outline.dxf")
-        args += " -D\'rev=\"%s\"\'" % ("REV." + rev)
+        args += " -D\'rev=\"%s\"\'" % self.rev
         args += " -D\'screw_thr_len=%.02f\'" % self.screw_len
         args += " -D\'screw_d=%.02f\'" % self.screw_d
         
@@ -283,6 +290,7 @@ if __name__ == '__main__':
     parser.add_argument ('--layer', help='F.Cu | B.Cu')
     parser.add_argument ('--flayer', help='Eco1.User | Eco2.User')
     parser.add_argument ('--ilayer', help='Eco1.User | Eco2.User')
+    parser.add_argument ('--rev', help='Override revisiosn')
 
     # Get args
     args = parser.parse_args ()
@@ -312,6 +320,10 @@ if __name__ == '__main__':
     # Create a fixture generator
     fixture = GenFixture (prj_name, brd, args.mat_th)
 
+    # Override revision
+    if args.rev is not None:
+        fixture.SetRevision (args.rev)
+        
     # Set parameters
     fixture.SetParams (args.pcb_th, args.screw_len, args.screw_d);
 
