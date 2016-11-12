@@ -52,8 +52,14 @@ class GenFixture:
     dxf_path = None
     prj_name = None
 
-    # Revision - Override if passed in
+    # Optional arguments
     rev = None
+    washer_th=None
+    nut_f2f=None
+    nut_c2c=None
+    nut_th=None
+    pivot_d=None
+    border=None
 
     # Board dimensions
     min_y = float ("inf")
@@ -70,12 +76,21 @@ class GenFixture:
         pass
 
     def __str__(self):
-        return "Fixture: origin=(%.02f,%.02f) dims=(%.02f,%.02f) min_y=%.02f" % (self.origin[0], self.origin[1],
-                                                                                 self.dims[0], self.dims[1],
+        return "Fixture: origin=(%.02f,%.02f) dims=(%.02f,%.02f) min_y=%.02f" % (self.origin[0],
+                                                                                 self.origin[1],
+                                                                                 self.dims[0],
+                                                                                 self.dims[1],
                                                                                  self.min_y)
 
-    def SetRevision(self, rev):
+    def SetOptional(self, rev=None, washer_th=None, nut_f2f=None, nut_c2c=None, nut_th=None,
+                    pivot_d=None, border=None):
         self.rev = rev
+        self.washer_th = washer_th
+        self.nut_f2f = nut_f2f
+        self.nut_c2c = nut_c2c
+        self.nut_th = nut_th
+        self.pivot_d = pivot_d
+        self.border = border
 
     def SetParams(self, pcb_th, screw_len, screw_d):
         if pcb_th is not None:
@@ -174,17 +189,40 @@ class GenFixture:
         args += " -D\'pcb_x=%.02f\'" % self.dims[0]
         args += " -D\'pcb_y=%.02f\'" % self.dims[1]
         args += " -D\'pcb_outline=\"%s\"\'" % (path + "/" + self.prj_name + "-outline.dxf")
-        args += " -D\'rev=\"%s\"\'" % self.rev
         args += " -D\'screw_thr_len=%.02f\'" % self.screw_len
         args += " -D\'screw_d=%.02f\'" % self.screw_d
-        
+
+        # Set optional args
+        if self.rev != None:
+            args += " -D\'rev=\"%s\"\'" % self.rev
+        if self.washer_th != None:
+            args += " -D\'washer_th=%.02f\'" % float (self.washer_th)
+        if self.nut_f2f != None:
+            args += " -D\'nut_od_f2f=%.02f\'" % float (self.nut_f2f)
+        if self.nut_c2c != None:
+            args += " -D\'nut_od_c2c=%.02f\'" % float (self.nut_c2c)
+        if self.nut_th != None:
+            args += " -D\'nut_th=%.02f\'" % float (self.nut_th)
+        if self.pivot_d != None:
+            args += " -D\'pivot_d=%.02f\'" % float (self.pivot_d)
+        if self.border != None:
+            args += " -D\'border=%.02f\'" % float (self.border)
+
         # Create output file name
         dxfout = path + "/" + self.prj_name + "-fixture.dxf"
-        
+        pngout = path + "/" + self.prj_name + "-fixture.png"
+        testout= path + "/" + self.prj_name + "-test.dxf"
+
         # This will take a while, print something
         print "Generating Fixture..."
         
-        # Create fixture
+        # Create test part
+        os.system ("openscad %s -D\'mode=\"testcut\"\' -o %s openfixture.scad" % (args, testout))
+        
+        # Create rendering
+        os.system ("openscad %s -D\'mode=\"3dmodel\"\' --render -o %s openfixture.scad" % (args, pngout))
+      
+        # Create laser cuttable fixture
         os.system ("openscad %s -D\'mode=\"lasercut\"\' -o %s openfixture.scad" % (args, dxfout))
 
         # Print output
@@ -285,12 +323,18 @@ if __name__ == '__main__':
     
     # Add optional arguments
     parser.add_argument ('--pcb_th', help='pcb thickness (mm)')
-    parser.add_argument ('--screw_len', help='Assembly screw thread length (default = 14mm)')
-    parser.add_argument ('--screw_d', help='Assembly screw diameter (default=M3)')
+    parser.add_argument ('--screw_len', help='Assembly screw thread length (default = 16mm)')
+    parser.add_argument ('--screw_d', help='Assembly screw diameter (default=3mm)')
     parser.add_argument ('--layer', help='F.Cu | B.Cu')
     parser.add_argument ('--flayer', help='Eco1.User | Eco2.User')
     parser.add_argument ('--ilayer', help='Eco1.User | Eco2.User')
     parser.add_argument ('--rev', help='Override revisiosn')
+    parser.add_argument ('--washer_th', help='Washer thickness for hinge')
+    parser.add_argument ('--nut_f2f', help='hex nut flat to flat (mm)')
+    parser.add_argument ('--nut_c2c', help='hex nut corner to corner (mm)')
+    parser.add_argument ('--nut_th', help='hex nut thickness (mm)')
+    parser.add_argument ('--pivot_d', help='Pivot diameter (mm)')
+    parser.add_argument ('--border', help='Board (ledge) under pcb (mm)')
 
     # Get args
     args = parser.parse_args ()
@@ -320,16 +364,21 @@ if __name__ == '__main__':
     # Create a fixture generator
     fixture = GenFixture (prj_name, brd, args.mat_th)
 
-    # Override revision
-    if args.rev is not None:
-        fixture.SetRevision (args.rev)
-        
     # Set parameters
     fixture.SetParams (args.pcb_th, args.screw_len, args.screw_d);
 
     # Setup layers
     fixture.SetLayers (layer=layer, flayer=flayer, ilayer=ilayer)
-    
+
+    # Set optional arguments
+    fixture.SetOptional (rev=args.rev,
+                         washer_th=args.washer_th,
+                         nut_f2f=args.nut_f2f,
+                         nut_c2c=args.nut_c2c,
+                         nut_th=args.nut_th,
+                         pivot_d=args.pivot_d,
+                         border=args.border)
+
     # Generate fixture
     fixture.Generate (out_dir)
     # print fixture

@@ -39,7 +39,7 @@ rev = "rev.0";
 // Should be close to actual pcb dimensions... Used for support structure only so not critical
 pcb_x = 27.14;
 pcb_y = 45;
-pcb_support_border = 1;
+pcb_support_border = 2;
 
 // Work area of PCB
 // Must be >= PCB size
@@ -68,12 +68,14 @@ tp_correction_offset_y = 0.0;
 mode = "3dmodel";
 //mode = "lasercut";
 //mode = "validate";
+//mode = "testcut";
 //mode = "none";
 
 // Uncomment for laser cuttable dxf
 if (mode == "lasercut") projection (cut = false) lasercut ();
 if (mode == "3dmodel") 3d_model ();
 if (mode == "validate") validate_testpoints (pcb_outline);
+if (mode == "testcut") projection (cut = false) testcut ();
 
 // Smothness function for circles
 $fn = 15;
@@ -229,6 +231,40 @@ module nut_hole ()
 {
     pad = 0.05;
     cylinder (r = nut_od_c2c/2 + pad, h = mat_th, $fn = 6);
+}
+
+module testcut ()
+{
+    y = 30;
+    off = 3 * mat_th + laser_pad;
+    
+    difference () {
+        union () {
+            cube ([3 * mat_th, y, mat_th]);
+        
+            translate ([off, 0, 0])
+            cube ([screw_thr_len + 2 * mat_th, y - 2 * mat_th, mat_th]);
+        }
+        // Remove tng slot
+        translate ([mat_th, y/2, 0])
+        tng_n (y - 2 * mat_th, 3);
+        
+        // Remove tnut hole
+        translate ([mat_th * 3/2, y/2, 0])
+        tnut_hole ();
+        
+        // Remove tng from male side
+        translate ([off, y/2 - mat_th, 0])
+        tng_p (y - 2 * mat_th, 3); 
+        
+        // Remove tnut
+        translate ([off, y/2 - mat_th, 0])
+        tnut_female (1);
+        
+        // Remove nut hole
+        translate ([off + nut_od_c2c / 2 + screw_thr_len - mat_th, nut_od_f2f / 2 + 2, 0])
+        nut_hole ();
+    }
 }
 
 module head_side ()
@@ -722,7 +758,7 @@ module 3d_latch () {
 module 3d_model () {
     translate ([0, 0, base_z + base_pivot_offset - pivot_support_r])
     translate ([0, head_y + pivot_support_r, pivot_support_r])
-    rotate ([-15, 0, 0])
+    rotate ([-8, 0, 0])
     translate ([0, -head_y - pivot_support_r, -pivot_support_r])
     3d_head ();
     3d_base ();
