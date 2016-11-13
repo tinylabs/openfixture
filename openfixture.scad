@@ -404,9 +404,9 @@ module head_top ()
         // Remove holes for hex nuts
         translate ([hole_offset, hole_offset, 0])
         cylinder (r = screw_r + pad, h = mat_th);
-        translate ([hole_offset, head_y - hole_offset, 0])
+        translate ([hole_offset, head_y - hole_offset - mat_th, 0])
         cylinder (r = screw_r + pad, h = mat_th);
-        translate ([head_x - hole_offset, head_y - hole_offset, 0])
+        translate ([head_x - hole_offset, head_y - hole_offset - mat_th, 0])
         cylinder (r = screw_r + pad, h = mat_th);
         translate ([head_x - hole_offset, hole_offset, 0])
         cylinder (r = screw_r + pad, h = mat_th);
