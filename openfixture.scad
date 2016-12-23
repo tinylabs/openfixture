@@ -99,7 +99,8 @@ screw_d = 3.0;
 screw_r = screw_d / 2;
 
 // Uncomment to use normal M3 screw for pivot
-pivot_d = screw_d;
+// We need pivot_d tight for precise alignment
+pivot_d = screw_d - 0.1;
 // Uncomment to use bushing in pivot
 //pivot_d = 5.12;
 pivot_r = pivot_d / 2;
@@ -491,7 +492,7 @@ module latch ()
        cylinder (r = screw_r, h = mat_th, $fn = 20);
        
        // Remove slot
-       translate ([-screw_r, y - pad, 0])
+       translate ([-screw_r, y, 0])
        cube ([(3 * tab_width) / 4, mat_th + pad, mat_th]);
        
        // Remove tng
@@ -619,7 +620,7 @@ module base_back_support ()
         
             // Add additional support to receive pivot screw and nut
             translate ([3 * mat_th, base_z, 0])
-            cube ([base_x - 6 * mat_th, base_pivot_offset + mat_th, mat_th]);
+            cube ([base_x - 6 * mat_th, base_pivot_offset + mat_th + 2, mat_th]);
         }
         
         // Remove tnut supports
@@ -710,7 +711,6 @@ module 3d_head ()
     head_front_back ();
 }
 
-
 module 3d_base () {
     // Base sides
     rotate ([0, -90, 0])
@@ -740,7 +740,7 @@ module 3d_base () {
     translate ([-mat_th, 0, base_z - (2 * mat_th)])
     carrier (pcb_outline, pcb_x, pcb_y, pcb_support_border);
     translate ([-mat_th, 0, base_z - mat_th])
-    carrier (pcb_outline, pcb_x, pcb_y, -0.1);
+    carrier (pcb_outline, pcb_x, pcb_y, 0);
 }
 
 module 3d_latch () {
@@ -789,7 +789,7 @@ module lasercut ()
     carrier (pcb_outline, pcb_x, pcb_y, pcb_support_border);
     xoffset1 = base_x + laser_pad;
     translate ([xoffset1, 0, 0])
-    carrier (pcb_outline, pcb_x, pcb_y, -0.1);
+    carrier (pcb_outline, pcb_x, pcb_y, -0.05);
     
     // Add head top
     xoffset2 = xoffset1 + base_x + laser_pad;
