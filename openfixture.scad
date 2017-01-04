@@ -158,7 +158,7 @@ active_y_offset = 2 * mat_th + nut_od_f2f + 2;
 // Head dimensions
 head_x = work_area_x + 2 * active_x_offset;
 head_y = work_area_y + active_y_offset + active_y_back_offset;
-head_z = screw_thr_len + (mat_th - nut_th);
+head_z = screw_thr_len - nut_th;
 
 // Base dimensions
 base_x = head_x + 2 * mat_th;
@@ -174,7 +174,7 @@ nut_pad = (nut_od_c2c - mat_th) / 2;
 // Derived latch dimensions
 latch_z_offset = (base_z * (2 / 3) + base_pivot_offset - pivot_r) / 2;
 support_x = base_x / 12 + 2 * mat_th;
-
+latch_support_y = base_z * (2 / 3) + base_pivot_offset - pivot_support_r - 2 * mat_th;
 //
 // MODULES
 //
@@ -361,14 +361,14 @@ module head_base ()
 
         // Remove holes for hex nuts
         translate ([nut_offset, nut_offset, 0])
-        nut_hole ();
+        tnut_hole ();
         translate ([head_x - nut_offset, nut_offset, 0])
-        nut_hole ();
+        tnut_hole ();
         // Offset these +1 mat_th to allow cutout for swivel
         translate ([nut_offset, head_y - nut_offset - mat_th, 0])
-        nut_hole ();
+        tnut_hole ();
         translate ([head_x - nut_offset, head_y - nut_offset - mat_th, 0])
-        nut_hole ();
+        tnut_hole ();
         
         // Take 1/3 mouse bit out of front of tabs
         translate ([-2 * mat_th - washer_th, head_y / 12 - tab_width / 2, 0])
@@ -387,7 +387,7 @@ module head_base ()
 
 module osh_logo () {
     linear_extrude (height = mat_th)
-    scale ([0.2, 0.2, 1])
+    scale ([0.15, 0.15, 1])
     translate ([-72, -66, 0])
     import (osh_logo);
 }
@@ -413,10 +413,35 @@ module head_top ()
         cylinder (r = screw_r + pad, h = mat_th);
 
         // Add osh logo
-        translate ([head_x / 2, head_y - 25, 0])
+        translate ([head_x / 2, head_y - 30, 0])
         osh_logo ();
+        
+        // Remove cable relief holes
+        translate ([mat_th * 3 + screw_d, head_y - (5 * mat_th) - screw_r, 0])
+        tnut_hole ();
+        translate ([head_x - (mat_th * 3 + screw_d), head_y - (5 * mat_th) - screw_r, 0])
+        tnut_hole ();
     }
 }
+
+module cable_retention ()
+{
+    x = head_x - 2 * (mat_th * 3 + screw_d);
+    difference () {
+        
+        hull () {
+            cylinder (r=screw_d, h=mat_th);
+            translate ([x, 0, 0])
+            cylinder (r=screw_d, h=mat_th);            
+        }
+        
+        // Remove holes
+        tnut_hole ();
+        translate ([x, 0, 0])
+        tnut_hole ();
+    }
+}
+
 module head_base_common ()
 {
     difference () {
@@ -452,7 +477,7 @@ module head_base_common ()
 module latch_support ()
 {
     x = base_x + 2 * mat_th + 2 * washer_th;
-    y = base_z * (2 / 3) + base_pivot_offset - pivot_support_r - 2 * mat_th;
+    y = latch_support_y;
     
     difference () {
         cube ([x, y, mat_th]);
@@ -620,7 +645,7 @@ module base_back_support ()
         
             // Add additional support to receive pivot screw and nut
             translate ([3 * mat_th, base_z, 0])
-            cube ([base_x - 6 * mat_th, base_pivot_offset + mat_th + 2, mat_th]);
+           cube ([base_x - 6 * mat_th, base_pivot_offset + mat_th + 1.5, mat_th]);
         }
         
         // Remove tnut supports
@@ -709,6 +734,8 @@ module 3d_head ()
     translate ([0, 2 * mat_th, 0])
     rotate ([90, 0, 0])
     head_front_back ();
+    translate ([mat_th * 3 + screw_d, head_y - (5 * mat_th) - screw_r, head_top_offset + mat_th + 1])
+    cable_retention ();
 }
 
 module 3d_base () {
@@ -845,19 +872,25 @@ module lasercut ()
     latch_support ();
  
     // Add head front/back
-    yoffset5 = head_z + laser_pad;
+    yoffset5 = latch_support_y + laser_pad;
     translate ([xoffset10, yoffset5, 0])
     head_front_back ();
     yoffset6 = yoffset5 + head_z + laser_pad;
     translate ([xoffset10, yoffset6, 0])
     head_front_back ();
 
+    // Add cable retention
+    yoffset7 = yoffset6 + head_z + laser_pad + screw_d;
+    translate ([xoffset10 + screw_d, yoffset7, 0])
+    cable_retention ();
+
     // Add latches
     xoffset11 = xoffset10 + screw_d + support_x + laser_pad;
-    yoffset7 = yoffset6 + base_z + screw_d + laser_pad;
-    translate ([xoffset11, yoffset7, 0])
+    //yoffset8 = yoffset7 + base_z + screw_d + laser_pad;
+    yoffset8 = yoffset7 + screw_d + tab_width / 2 + laser_pad;
+    translate ([xoffset11, yoffset8, 0])
     latch ();
     xoffset12 = xoffset11 + screw_d + support_x + tab_width / 2 + laser_pad;
-    translate ([xoffset12, yoffset7, 0])
+    translate ([xoffset12, yoffset8, 0])
     latch ();
 }

@@ -33,6 +33,14 @@ The resulting output is:
   * A 3D model of the test fixture for visualization
   * A 2D DXF that can be directly lasercut for assembly
 
+## Recommended workflow for kicad
+  1. Clone this repo if you haven't already
+  2. Setup a project specific bash script (use genfixture.sh as an example)
+  3. Enter board specific info, fixture hardware, material thickness, etc.
+  4. Whenever the layout changes call ./genfixture.sh (from repo) and pass path to .kicad_pcb file.
+  5. Fixture will be generated in $OUTPUT folder.
+  6. If anyone is interested in integrating this into kicad directly I'd be happy to support it and clean it up...
+  
 ## Hardware
   * All that is needed is M3 (14mm+) screws, M3 hex nuts, and lasercut parts
   * I use nylon bushings in the main pivot with m3 screws for a smoother joint but this is optional 
