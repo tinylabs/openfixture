@@ -31,7 +31,7 @@ tp_min_y = 13.7;
 
 // DXF outline of pcb
 pcb_outline = "./rfid_fob-outline.dxf";
-osh_logo = "./osh_logo.dxf";
+logo = "./logo.dxf";
 
 // PCB revision
 rev = "rev.0";
@@ -40,6 +40,9 @@ rev = "rev.0";
 pcb_x = 27.14;
 pcb_y = 45;
 pcb_support_border = 2;
+
+logo_w = 50;
+logo_h = 50;
 
 // Work area of PCB
 // Must be >= PCB size
@@ -385,11 +388,10 @@ module head_base ()
     }
 }
 
-module osh_logo () {
+module logo () {
     linear_extrude (height = mat_th)
-    scale ([0.15, 0.15, 1])
-    translate ([-72, -66, 0])
-    import (osh_logo);
+    translate ([-logo_w / 2, -logo_h / 2, 0])
+    import (logo);
 }
 
 module head_top ()
@@ -414,7 +416,7 @@ module head_top ()
 
         // Add osh logo
         translate ([head_x / 2, head_y - 30, 0])
-        osh_logo ();
+        logo ();
         
         // Remove cable relief holes
         translate ([mat_th * 3 + screw_d, head_y - (5 * mat_th) - screw_r, 0])
