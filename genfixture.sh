@@ -23,7 +23,8 @@ WASHER_TH=1.0
 NUT_TH=2.4
 NUT_F2F=5.45
 NUT_C2C=6.10
+POGO_UNCOMPRESSED_LENGTH=16
 
 # Call python wrapper
-python GenFixture.py --board $BOARD --layer $LAYER --rev $REV --mat_th $MAT --pcb_th $PCB --out $OUTPUT --screw_len $SCREW_LEN --screw_d $SCREW_D --washer_th $WASHER_TH --nut_th $NUT_TH --nut_f2f $NUT_F2F --nut_c2c $NUT_C2C --border $BORDER
+python GenFixture.py --board $BOARD --layer $LAYER --rev $REV --mat_th $MAT --pcb_th $PCB --out $OUTPUT --screw_len $SCREW_LEN --screw_d $SCREW_D --washer_th $WASHER_TH --nut_th $NUT_TH --nut_f2f $NUT_F2F --nut_c2c $NUT_C2C --border $BORDER --pogo-uncompressed-length $POGO_UNCOMPRESSED_LENGTH
 

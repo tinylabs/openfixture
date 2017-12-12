@@ -83,7 +83,7 @@ class GenFixture:
                                                                                  self.min_y)
 
     def SetOptional(self, rev=None, washer_th=None, nut_f2f=None, nut_c2c=None, nut_th=None,
-                    pivot_d=None, border=None):
+                    pivot_d=None, border=None, pogo_uncompressed_length = None):
         self.rev = rev
         self.washer_th = washer_th
         self.nut_f2f = nut_f2f
@@ -91,6 +91,7 @@ class GenFixture:
         self.nut_th = nut_th
         self.pivot_d = pivot_d
         self.border = border
+        self.pogo_uncompressed_length = pogo_uncompressed_length
 
     def SetParams(self, pcb_th, screw_len, screw_d):
         if pcb_th is not None:
@@ -207,6 +208,9 @@ class GenFixture:
             args += " -D\'pivot_d=%.02f\'" % float (self.pivot_d)
         if self.border != None:
             args += " -D\'border=%.02f\'" % float (self.border)
+        if self.pogo_uncompressed_length != None:
+            args += " -D\'pogo_uncompressed_length=%.02f\'" % float(self.pogo_uncompressed_length)
+
 
         # Create output file name
         dxfout = path + "/" + self.prj_name + "-fixture.dxf"
@@ -335,7 +339,7 @@ if __name__ == '__main__':
     parser.add_argument ('--nut_th', help='hex nut thickness (mm)')
     parser.add_argument ('--pivot_d', help='Pivot diameter (mm)')
     parser.add_argument ('--border', help='Board (ledge) under pcb (mm)')
-
+    parser.add_argument ('--pogo-uncompressed-length', help='Uncompress length that pogo pin emerges from enclosure')
     # Get args
     args = parser.parse_args ()
 
@@ -377,7 +381,9 @@ if __name__ == '__main__':
                          nut_c2c=args.nut_c2c,
                          nut_th=args.nut_th,
                          pivot_d=args.pivot_d,
-                         border=args.border)
+                         border=args.border,
+                         pogo_uncompressed_length=args.pogo_uncompressed_length
+                         )
 
     # Generate fixture
     fixture.Generate (out_dir)
