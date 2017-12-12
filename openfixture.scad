@@ -335,6 +335,10 @@ module lock_tab ()
     cube ([tab_length, tab_width, mat_th]);
     translate ([-tab_length/2, tab_width/2, 0])
     cylinder (r = tab_width / 2, h = mat_th, $fn = 20);
+    translate([0, tab_width / 2])
+    linear_extrude (height = mat_th)
+    polygon([[0,0], [-tab_length/2 - tab_width /2, 0], [0,tab_length * 2], [0,0]]);
+
 }
 
 module head_base ()
