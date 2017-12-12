@@ -569,7 +569,7 @@ module base_side ()
         translate ([support_offset, head_y / 6, 0])
         mirror ([0, 1, 0])
         tng_n (head_y / 3, 2);
-        translate ([support_offset + mat_th / 2, head_y / 12, 0])
+        translate ([support_offset + mat_th / 2, mat_th * 3, 0])
         tnut_hole ();
         
         // Second cross bar support
@@ -605,9 +605,9 @@ module base_front_support ()
         tng_p (y, 2);
         
         // Remove female tnuts
-        translate ([0, y / 4, 0])
+        translate ([0, mat_th * 3, 0])
         tnut_female (1, length = screw_thr_len - mat_th);
-        translate ([x, y / 4, 0])
+        translate ([x, mat_th * 3, 0])
         rotate ([0, 0, 180])
         tnut_female (1, length = screw_thr_len - mat_th);
     }
