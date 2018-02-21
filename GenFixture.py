@@ -213,7 +213,7 @@ class GenFixture:
         if self.pivot_d != None:
             args += " -D\'pivot_d=%.02f\'" % float (self.pivot_d)
         if self.border != None:
-            args += " -D\'border=%.02f\'" % float (self.border)
+            args += " -D\'pcb_support_border=%.02f\'" % float (self.border)
 
         # Create output file name
         dxfout = path + "/" + self.prj_name + "-fixture.dxf"
