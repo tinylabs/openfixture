@@ -172,6 +172,13 @@ class GenFixture:
         # Get test points
         self.GetTestPoints ()
 
+        # Test for failure to find test points
+        if len(self.test_points) == 0:
+            print "WARNING, ABORTING: No test points found!"
+            print "Verify that the pcbnew file has test points specified"
+            print "or use the --flayer option to force test points"
+            return
+
         # Plot DXF
         self.PlotDXF (path)
 
@@ -206,7 +213,7 @@ class GenFixture:
         if self.pivot_d != None:
             args += " -D\'pivot_d=%.02f\'" % float (self.pivot_d)
         if self.border != None:
-            args += " -D\'border=%.02f\'" % float (self.border)
+            args += " -D\'pcb_support_border=%.02f\'" % float (self.border)
 
         # Create output file name
         dxfout = path + "/" + self.prj_name + "-fixture.dxf"

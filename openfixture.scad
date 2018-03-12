@@ -401,6 +401,10 @@ module head_top ()
         
         // Common base
         head_base_common ();
+
+        // Remove back cutout
+        translate ([2 * mat_th, head_y - mat_th, 0])
+        cube ([head_x - 4 * mat_th, mat_th, mat_th]);
         
         // Remove holes for hex nuts
         translate ([hole_offset, hole_offset, 0])
