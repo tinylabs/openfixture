@@ -149,7 +149,7 @@ class GenFixture:
         popt.SetSubtractMaskFromSilk(False)
 
         # Do the BRD edges in black
-        popt.SetColor(BLACK)
+        popt.SetColor(COLOR4D(0,0,0,1.0)) # color4d = RED, GREEN, BLUE, OPACITY
 
         # Open file
         pctl.SetLayer(Edge_Cuts)
@@ -214,7 +214,7 @@ class GenFixture:
         testout= path + "/" + self.prj_name + "-test.dxf"
 
         # This will take a while, print something
-        print "Generating Fixture..."
+        print ("Generating Fixture...")
         
         # Create test part
         os.system ("openscad %s -D\'mode=\"testcut\"\' -o %s openfixture.scad" % (args, testout))
@@ -226,7 +226,7 @@ class GenFixture:
         os.system ("openscad %s -D\'mode=\"lasercut\"\' -o %s openfixture.scad" % (args, dxfout))
 
         # Print output
-        print "Fixture generated: %s" % dxfout
+        print ("Fixture generated: %s" % dxfout)
 
     def GetTestPointStr (self):
         tps = "["
@@ -252,7 +252,7 @@ class GenFixture:
                     #else check ignore cases
                     elif ((p.IsOnLayer (self.ignore_layer) == True) or
                           (p.IsOnLayer (self.paste) == True) or
-                          (p.GetAttribute () != PAD_SMD)):
+                          (p.GetAttribute () != PAD_ATTRIB_SMD)):
                         continue
                                              
                     # Print position
