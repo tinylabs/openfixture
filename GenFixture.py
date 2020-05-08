@@ -135,6 +135,7 @@ class GenFixture:
 
         # Set some important plot options:
         popt.SetDXFPlotUnits(DXF_PLOTTER.DXF_UNIT_MILLIMETERS)
+        popt.SetDXFPlotPolygonMode(True)
         popt.SetPlotFrameRef(False)
         popt.SetLineWidth(FromMM(0.1))
         popt.SetAutoScale(False)
@@ -144,7 +145,7 @@ class GenFixture:
         popt.SetExcludeEdgeLayer(False)
 
         # Use auxillary origin
-        popt.SetUseAuxOrigin(False)
+        popt.SetUseAuxOrigin(True)
 
         # This by gerbers only (also the name is truly horrid!)
         popt.SetSubtractMaskFromSilk(False)
@@ -218,7 +219,7 @@ class GenFixture:
         print("Generating Fixture...")
 
         # Create test part
-        print("openscad {} -D\'mode=\"testcut\"\' -o {} openfixture.scad".format(args, testout))
+        # print("openscad {} -D\'mode=\"testcut\"\' -o {} openfixture.scad".format(args, testout))
         os.system("openscad %s -D\'mode=\"testcut\"\' -o %s openfixture.scad" % (args, testout))
 
         # Create rendering
