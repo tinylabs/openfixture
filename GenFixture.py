@@ -223,11 +223,11 @@ class GenFixture:
         os.system("openscad %s -D\'mode=\"testcut\"\' -o %s openfixture.scad" % (args, testout))
 
         # Create rendering
-        print("openscad {} -D\'mode=\"3dmodel\"\' --render -o {} openfixture.scad".format(args, pngout))
+        #print("openscad {} -D\'mode=\"3dmodel\"\' --render -o {} openfixture.scad".format(args, pngout))
         os.system("openscad %s -D\'mode=\"3dmodel\"\' --render -o %s openfixture.scad" % (args, pngout))
 
         # Create laser cuttable fixture
-        print("openscad {} -D\'mode=\"lasercut\"\' -o {} openfixture.scad".format(args,dxfout))
+        #print("openscad {} -D\'mode=\"lasercut\"\' -o {} openfixture.scad".format(args,dxfout))
         os.system("openscad %s -D\'mode=\"lasercut\"\' -o %s openfixture.scad" % (args, dxfout))
 
         # Print output
@@ -294,8 +294,12 @@ class GenFixture:
 
                 # Get bounding box
                 bb = line.GetBoundingBox()
+
                 x = ToMM(bb.GetX())
                 y = ToMM(bb.GetY())
+                #w = ToMM(bb.GetWidth())
+                #h = ToMM(bb.GetHeight())
+                #print("x: {}; y: {}; w: {}; h: {} ".format(x,y,w,h))
 
                 # Debug
                 # print "(%f, %f)" % (x, y)
@@ -303,18 +307,46 @@ class GenFixture:
                 # Min x/y will be origin
                 if x < self.origin[0]:
                     self.origin[0] = self.Round(x)
+                #    self.origin[0] = x
                 if y < self.origin[1]:
                     self.origin[1] = self.Round(y)
+                #    self.origin[1] = y
 
                 # Max x.y will be dimensions
                 if x > max_x:
                     max_x = x
                 if y > max_y:
                     max_y = y
+                    
+        # Get all modules for bounding boxes
+        for modu in self.brd.GetModules():
+            #bb = modu.GetBoundingBox()
+            bb = modu.GetFootprintRect()
+
+            x = ToMM(bb.GetX())
+            y = ToMM(bb.GetY())
+            w = ToMM(bb.GetWidth())
+            h = ToMM(bb.GetHeight())
+            #print("x: {}; y: {}; w: {}; h: {} ; ".format(x, y, w, h))
+
+            # Min x/y will be origin
+            if x < self.origin[0]:
+            #    self.origin[0] = self.Round(x)
+                self.origin[0] = x
+            if y < self.origin[1]:
+                #self.origin[1] = self.Round(y)
+                self.origin[1] = y
+
+            # Max x.y will be dimensions
+            if x + w > max_x:
+                max_x = x + w
+            if y + h > max_y:
+                max_y = y + h
 
         # Calculate dimensions
         self.dims[0] = self.Round(max_x - self.origin[0])
         self.dims[1] = self.Round(max_y - self.origin[1])
+        print("dims0x: {} dims1y: {}".format(self.dims[0],self.dims[1]))
 
 
 if __name__ == '__main__':
