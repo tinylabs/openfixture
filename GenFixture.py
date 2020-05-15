@@ -135,7 +135,7 @@ class GenFixture:
 
         # Set some important plot options:
         popt.SetDXFPlotUnits(DXF_PLOTTER.DXF_UNIT_MILLIMETERS)
-        popt.SetDXFPlotPolygonMode(True)
+        popt.SetDXFPlotPolygonMode(False)
         popt.SetPlotFrameRef(False)
         popt.SetLineWidth(FromMM(0.1))
         popt.SetAutoScale(False)

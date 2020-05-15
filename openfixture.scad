@@ -30,16 +30,17 @@ test_points = [[23.22,25.85],[19.72,22.28],[3.95,25.77],[7.52,22.27],[13.60,13.7
 tp_min_y = 13.7;
 
 // DXF outline of pcb
-pcb_outline = "./rfid_fob-outline.dxf";
+//pcb_outline = "./rfid_fob-outline.dxf";
+pcb_outline = "./digiWorker-outline.dxf";
 osh_logo = "./osh_logo.dxf";
 
 // PCB revision
 rev = "rev.0";
 
 // Should be close to actual pcb dimensions... Used for support structure only so not critical
-pcb_x = 27.14;
-pcb_y = 45;
-pcb_support_border = 2;
+pcb_x = 54;
+pcb_y = 117.45;
+pcb_support_border = 1;
 
 // Work area of PCB
 // Must be >= PCB size
@@ -125,7 +126,7 @@ washer_th = 0;
 // pin breaks. Undersized so they can be carefully drilled out using #50
 // drill bit for better precision. If you have access to a nicer laser you 
 // can size these exactly
-pogo_r = 1.5 / 2;
+pogo_r = 1.22 / 2;
 
 // Uncompressed length from receptacle
 pogo_uncompressed_length = 8;
@@ -470,7 +471,7 @@ module head_base_common ()
         
             // Drop pins for test points
             translate ([origin_x + test_points[i][0], origin_y - test_points[i][1], 0])
-            cylinder (r = pogo_r, h = mat_th);
+            cylinder (r = pogo_r, h = mat_th, $fn=100);
         }
     }
 }
@@ -687,11 +688,12 @@ module carrier (dxf_filename, pcb_x, pcb_y, border)
         translate ([mat_th + active_x_offset + tp_correction_offset_x, 
                    work_area_y + active_y_offset + tp_correction_offset_y, 0])
         translate ([sx_offset, -sy_offset, 0])
-        hull () {
-            linear_extrude (height = mat_th)
-            scale ([scale_x, scale_y, 1])
-            import (dxf_filename);
-        }
+               
+       
+        linear_extrude (height = mat_th)
+        scale ([scale_x, scale_y, 1])
+        import (dxf_filename);
+        
         
         // Remove slots
         translate ([0, y/2, 0])

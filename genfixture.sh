@@ -5,22 +5,22 @@
 #
 
 BOARD=$1
-OUTPUT="fixture-v10"
+OUTPUT="fixture-can-filter-v2.2"
 
 # PCB thickness
-PCB=0.8
+PCB=1.6
 LAYER='B.Cu'
-REV='rev.10'
+REV='rev.2.2'
 
 # Nearest opposite side component to border
 BORDER=0.8
 
 # Material dimensions
-MAT=2.45
+MAT=3.0
 SCREW_LEN=16.0
 SCREW_D=3.0
 WASHER_TH=1.0
-NUT_TH=2.4
+NUT_TH=3.85
 NUT_F2F=5.45
 NUT_C2C=6.10
 
