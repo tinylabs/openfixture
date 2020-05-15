@@ -42,6 +42,8 @@ pcb_x = 54;
 pcb_y = 117.45;
 pcb_support_border = 1;
 
+pcb_max_height_component = 17;
+
 // Work area of PCB
 // Must be >= PCB size
 // If you make this as big as any of the PCBs you work 
@@ -165,6 +167,7 @@ head_z = screw_thr_len - nut_th;
 base_x = head_x + 2 * mat_th;
 base_y = head_y + pivot_support_d;
 base_z = screw_thr_len + 3 * mat_th;
+//base_z = screw_thr_len + 3 * mat_th + (pcb_max_height_component - 12.5);
 base_pivot_offset = pivot_support_r + 
                     (pogo_uncompressed_length - pogo_compression) -
                     (mat_th - pcb_th);
